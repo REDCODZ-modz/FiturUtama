@@ -1,37 +1,29 @@
-local http = require("socket.http")
+local repo_url = "niii "
 
-local repo_url = "https://raw.githubusercontent.com/username/repository/main/expired_data.txt"
-
--- Fungsi untuk mengambil data dari GitHub
 function fetch_expired_data()
-    local response, status = http.request(repo_url)
-    if status == 200 then
-        local data = {}
-        for line in response:gmatch("[^\r\n]+") do
-            local user, timestamp = line:match("([^:]+):(%d+)")
-            if user and timestamp then
-                data[user] = tonumber(timestamp)
-            end
+    local handle = io.popen("curl -s " .. repo_url)
+    if not handle then return {} end
+
+    local response = handle:read("*a")
+    handle:close()
+
+    local data = {}
+    for line in response:gmatch("[^\r\n]+") do
+        local user, timestamp = line:match("([^:]+):(%d+)")
+        if user and timestamp then
+            data[user] = tonumber(timestamp)
         end
-        return data
-    else
-        return {}
     end
+    return data
 end
 
--- Fungsi untuk mengecek expired
 function is_expired(user_id)
     local expired_data = fetch_expired_data()
     local current_time = os.time()
 
-    if expired_data[user_id] and expired_data[user_id] < current_time then
-        return true
-    else
-        return false
-    end
+    return expired_data[user_id] and expired_data[user_id] < current_time
 end
 
--- Contoh penggunaan
 local user_id = "user123"
 if is_expired(user_id) then
     print("Akses ditolak: Masa aktif habis.")
