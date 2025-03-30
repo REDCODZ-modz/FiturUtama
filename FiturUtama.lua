@@ -3,7 +3,7 @@ function getUserID()
 end
 
 function checkWhitelist()
-    local url = "https://raw.githubusercontent.com/NamaAkun/NamaRepo/main/users.txt" -- Ganti dengan URL file
+    local url = "https://raw.githubusercontent.com/REDCODZ-modz/user.auth/refs/heads/main/uset.txt" -- Ganti dengan URL file
     local response = gg.makeRequest(url)
 
     if response.code == 200 then
