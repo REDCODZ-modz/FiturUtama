@@ -1,28 +1,25 @@
--- Fungsi untuk meminta User ID dari pengguna
-function getUserID()
-    return gg.prompt({"Masukkan User ID:"}, {}, {"text"})[1]
-end
-
--- Fungsi untuk mengubah timestamp ke format tanggal yang bisa dibaca
-function formatTimestamp(timestamp)
-    return os.date("%d-%m-%Y %H:%M", tonumber(timestamp))
-end
-
--- Fungsi untuk mengecek whitelist dan expired time
 function checkWhitelist()
-    local url = "https://raw.githubusercontent.com/REDCODZ-modz/user.auth/refs/heads/main/uset.txt" -- Ganti dengan URL file
+    local url = "https://raw.githubusercontent.com/REDCODZ-modz/user.auth/main/uset.txt" -- Pastikan URL ini benar
     local response = gg.makeRequest(url)
 
     if response.code == 200 then
         local userList = response.content
+
+        -- DEBUG: Cek apakah data benar-benar diterima
+        gg.alert("Data Diterima:\n" .. userList)
+
         local userID = getUserID()
         local current_date = os.time()
 
         for line in userList:gmatch("[^\r\n]+") do
             local storedID, expireDate = line:match("([^|]+)|([^|]+)")
+
+            -- DEBUG: Cek apakah parsing data berhasil
+            gg.alert("UserID: " .. tostring(storedID) .. "\nExpire Date (Raw): " .. tostring(expireDate))
+
             if storedID == userID then
                 local formattedExpireDate = formatTimestamp(expireDate)
-                
+
                 gg.alert("📅 Tanggal Expired Anda: " .. formattedExpireDate)
 
                 if current_date > tonumber(expireDate) then
@@ -38,7 +35,7 @@ function checkWhitelist()
         gg.alert("⛔ User ID tidak ditemukan! Hubungi admin.")
         os.exit()
     else
-        gg.alert("⚠️ Gagal mengambil data! Periksa koneksi internet.")
+        gg.alert("⚠️ Gagal mengambil data! Kode: " .. response.code)
         os.exit()
     end
 end
