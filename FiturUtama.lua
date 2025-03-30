@@ -1,47 +1,43 @@
-function checkWhitelist()
-    local url = "https://raw.githubusercontent.com/REDCODZ-modz/user.auth/main/uset.txt" -- Pastikan URL ini benar
-    local response = gg.makeRequest(url)
+local http = require("socket.http")
 
-    if response.code == 200 then
-        local userList = response.content
+local repo_url = "https://raw.githubusercontent.com/username/repository/main/expired_data.txt"
 
-        -- DEBUG: Cek apakah data benar-benar diterima
-        gg.alert("Data Diterima:\n" .. userList)
-
-        local userID = getUserID()
-        local current_date = os.time()
-
-        for line in userList:gmatch("[^\r\n]+") do
-            local storedID, expireDate = line:match("([^|]+)|([^|]+)")
-
-            -- DEBUG: Cek apakah parsing data berhasil
-            gg.alert("UserID: " .. tostring(storedID) .. "\nExpire Date (Raw): " .. tostring(expireDate))
-
-            if storedID == userID then
-                local formattedExpireDate = formatTimestamp(expireDate)
-
-                gg.alert("📅 Tanggal Expired Anda: " .. formattedExpireDate)
-
-                if current_date > tonumber(expireDate) then
-                    gg.alert("⛔ Akses Kedaluwarsa pada: " .. formattedExpireDate .. "\nHubungi admin untuk perpanjangan.")
-                    os.exit()
-                else
-                    gg.toast("✅ Akses Diterima! Expired pada: " .. formattedExpireDate)
-                    return
-                end
+-- Fungsi untuk mengambil data dari GitHub
+function fetch_expired_data()
+    local response, status = http.request(repo_url)
+    if status == 200 then
+        local data = {}
+        for line in response:gmatch("[^\r\n]+") do
+            local user, timestamp = line:match("([^:]+):(%d+)")
+            if user and timestamp then
+                data[user] = tonumber(timestamp)
             end
         end
-
-        gg.alert("⛔ User ID tidak ditemukan! Hubungi admin.")
-        os.exit()
+        return data
     else
-        gg.alert("⚠️ Gagal mengambil data! Kode: " .. response.code)
-        os.exit()
+        return {}
     end
 end
 
--- **Jalankan cek whitelist sebelum script utama dimulai**
-checkWhitelist()
+-- Fungsi untuk mengecek expired
+function is_expired(user_id)
+    local expired_data = fetch_expired_data()
+    local current_time = os.time()
+
+    if expired_data[user_id] and expired_data[user_id] < current_time then
+        return true
+    else
+        return false
+    end
+end
+
+-- Contoh penggunaan
+local user_id = "user123"
+if is_expired(user_id) then
+    print("Akses ditolak: Masa aktif habis.")
+else
+    print("Akses diberikan.")
+end
 
 -- **Script utama Anda dimulai setelah pengecekan whitelist**
 status = {
