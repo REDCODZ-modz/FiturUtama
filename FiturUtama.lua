@@ -1,4 +1,4 @@
-local repo_url = "niii "
+local repo_url = "https://raw.githubusercontent.com/REDCODZ-modz/user.auth/refs/heads/main/uset.txt"
 
 function fetch_expired_data()
     local handle = io.popen("curl -s " .. repo_url)
