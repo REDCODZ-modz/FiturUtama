@@ -1,15 +1,26 @@
-local repo_url = "https://raw.githubusercontent.com/REDCODZ-modz/user.auth/refs/heads/main/uset.txt"
+local repo_url = "https://raw.githubusercontent.com/REDCODZ-modz/user.auth/main/uset.txt"
+local temp_file = "user_data.txt"
 
 function fetch_expired_data()
-    local response = game:HttpGet(repo_url)
-    local data = {}
+    -- Menggunakan os.execute untuk mendownload file
+    os.execute("curl -s " .. repo_url .. " -o " .. temp_file)
 
-    for line in response:gmatch("[^\r\n]+") do
+    -- Membaca file yang telah di-download
+    local file = io.open(temp_file, "r")
+    if not file then
+        print("Gagal membuka file data.")
+        return {}
+    end
+
+    local data = {}
+    for line in file:lines() do
         local user, timestamp = line:match("([^:]+):(%d+)")
         if user and timestamp then
             data[user] = tonumber(timestamp)
         end
     end
+    file:close()
+
     return data
 end
 
@@ -19,6 +30,7 @@ function is_expired(user_id)
     return expired_data[user_id] and expired_data[user_id] < current_time
 end
 
+-- Cek akses pengguna
 local user_id = "user123"
 if is_expired(user_id) then
     print("Akses ditolak: Masa aktif habis.")
