@@ -1,7 +1,14 @@
+-- Fungsi untuk meminta User ID dari pengguna
 function getUserID()
     return gg.prompt({"Masukkan User ID:"}, {}, {"text"})[1]
 end
 
+-- Fungsi untuk mengubah timestamp ke format tanggal yang bisa dibaca
+function formatTimestamp(timestamp)
+    return os.date("%d-%m-%Y %H:%M", tonumber(timestamp))
+end
+
+-- Fungsi untuk mengecek whitelist dan expired time
 function checkWhitelist()
     local url = "https://raw.githubusercontent.com/REDCODZ-modz/user.auth/refs/heads/main/uset.txt" -- Ganti dengan URL file
     local response = gg.makeRequest(url)
@@ -14,11 +21,15 @@ function checkWhitelist()
         for line in userList:gmatch("[^\r\n]+") do
             local storedID, expireDate = line:match("([^|]+)|([^|]+)")
             if storedID == userID then
+                local formattedExpireDate = formatTimestamp(expireDate)
+                
+                gg.alert("📅 Tanggal Expired Anda: " .. formattedExpireDate)
+
                 if current_date > tonumber(expireDate) then
-                    gg.alert("⛔ Akses Kedaluwarsa! Hubungi admin untuk perpanjangan.")
+                    gg.alert("⛔ Akses Kedaluwarsa pada: " .. formattedExpireDate .. "\nHubungi admin untuk perpanjangan.")
                     os.exit()
                 else
-                    gg.toast("✅ Akses Diterima! Selamat datang, " .. userID)
+                    gg.toast("✅ Akses Diterima! Expired pada: " .. formattedExpireDate)
                     return
                 end
             end
@@ -32,9 +43,10 @@ function checkWhitelist()
     end
 end
 
-checkWhitelist()  -- Cek expired & whitelist sebelum menjalankan script utama
+-- **Jalankan cek whitelist sebelum script utama dimulai**
+checkWhitelist()
 
-
+-- **Script utama Anda dimulai setelah pengecekan whitelist**
 status = {
     BYPASS = false,
     AIM_ASSIST_V2 = false,
@@ -45,6 +57,8 @@ status = {
     BODY_COLOR_GREEN = false, 
     BODY_COLOR_RED = false, 
 }
+
+-- (Lanjutan kode asli Anda tetap ada di bawah...)
 
 function ToggleFeature(name, func)
     if status[name] then 
