@@ -1,3 +1,40 @@
+function getUserID()
+    return gg.prompt({"Masukkan User ID:"}, {}, {"text"})[1]
+end
+
+function checkWhitelist()
+    local url = "https://raw.githubusercontent.com/NamaAkun/NamaRepo/main/users.txt" -- Ganti dengan URL file
+    local response = gg.makeRequest(url)
+
+    if response.code == 200 then
+        local userList = response.content
+        local userID = getUserID()
+        local current_date = os.time()
+
+        for line in userList:gmatch("[^\r\n]+") do
+            local storedID, expireDate = line:match("([^|]+)|([^|]+)")
+            if storedID == userID then
+                if current_date > tonumber(expireDate) then
+                    gg.alert("⛔ Akses Kedaluwarsa! Hubungi admin untuk perpanjangan.")
+                    os.exit()
+                else
+                    gg.toast("✅ Akses Diterima! Selamat datang, " .. userID)
+                    return
+                end
+            end
+        end
+
+        gg.alert("⛔ User ID tidak ditemukan! Hubungi admin.")
+        os.exit()
+    else
+        gg.alert("⚠️ Gagal mengambil data! Periksa koneksi internet.")
+        os.exit()
+    end
+end
+
+checkWhitelist()  -- Cek expired & whitelist sebelum menjalankan script utama
+
+
 status = {
     BYPASS = false,
     AIM_ASSIST_V2 = false,
