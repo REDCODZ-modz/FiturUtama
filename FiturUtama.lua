@@ -1,3 +1,6 @@
+gg.alert("⚠️  MAINTENANCE ⚠️\n\nScript ini sedang dalam perbaikan.\nSilakan cek kembali nanti.")
+os.exit()
+
 status = { BYPASS = false, AIM_ASSIST_V2 = false, LESS_RECOIL = false, NO_RECOIL_V2 = false, BODY_COLOR_GREEN = false, BODY_COLOR_RED = false, SPEEDHACK = false }
 
 function ToggleFeature(name, func)
